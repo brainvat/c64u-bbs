@@ -41,11 +41,17 @@ class DriveInfo:
 
     @classmethod
     def from_api(cls, drive_id: str, data: dict) -> DriveInfo:
+        # The API returns image info as image_file/image_path (or image in some firmware)
+        mounted = data.get("image_file", "") or data.get("image", "")
+        image_path = data.get("image_path", "")
+        if image_path and mounted:
+            mounted = f"{image_path}{mounted}"
+
         return cls(
             drive_id=drive_id,
             enabled=data.get("enabled", False),
             bus_id=data.get("bus_id", 8),
             drive_type=data.get("type", ""),
             rom_file=data.get("rom", ""),
-            mounted_image=data.get("image", ""),
+            mounted_image=mounted,
         )

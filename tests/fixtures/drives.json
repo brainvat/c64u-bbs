@@ -1,16 +1,25 @@
 {
-  "a": {
-    "enabled": true,
-    "bus_id": 8,
-    "type": "1541",
-    "rom": "ar5-1541",
-    "image": "/usb0/games/test.d64"
-  },
-  "b": {
-    "enabled": false,
-    "bus_id": 9,
-    "type": "1571",
-    "rom": "1571",
-    "image": ""
-  }
+  "drives": [
+    {
+      "a": {
+        "enabled": true,
+        "bus_id": 8,
+        "type": "1541",
+        "rom": "1541.rom",
+        "image_file": "test.d64",
+        "image_path": "/usb0/games/"
+      }
+    },
+    {
+      "b": {
+        "enabled": false,
+        "bus_id": 9,
+        "type": "1541",
+        "rom": "1541.rom",
+        "image_file": "",
+        "image_path": ""
+      }
+    }
+  ],
+  "errors": []
 }

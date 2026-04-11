@@ -42,5 +42,12 @@ def cli(ctx: click.Context, host: str | None, password: str | None) -> None:
 
 # Import and register subcommands
 from c64u_bbs.cli.commands.info import info  # noqa: E402
+from c64u_bbs.cli.commands.drives import drives  # noqa: E402
+from c64u_bbs.cli.commands.run import reset, run  # noqa: E402
+from c64u_bbs.cli.commands.smoke import smoke  # noqa: E402
 
 cli.add_command(info)
+cli.add_command(drives)
+cli.add_command(run)
+cli.add_command(reset)
+cli.add_command(smoke)

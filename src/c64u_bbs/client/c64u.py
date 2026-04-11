@@ -141,9 +141,21 @@ class C64UClient:
         response = self._request("GET", "/drives")
         data = response.json()
         drives = []
-        for drive_id, drive_data in data.items():
-            if isinstance(drive_data, dict):
-                drives.append(DriveInfo.from_api(drive_id, drive_data))
+
+        # API returns {"drives": [{"a": {...}}, {"b": {...}}, ...]}
+        drive_list = data.get("drives", [])
+        if isinstance(drive_list, list):
+            for entry in drive_list:
+                if isinstance(entry, dict):
+                    for drive_id, drive_data in entry.items():
+                        if isinstance(drive_data, dict):
+                            drives.append(DriveInfo.from_api(drive_id, drive_data))
+        else:
+            # Fallback: flat dict format (older firmware?)
+            for drive_id, drive_data in data.items():
+                if isinstance(drive_data, dict):
+                    drives.append(DriveInfo.from_api(drive_id, drive_data))
+
         return drives
 
     def mount_drive(
