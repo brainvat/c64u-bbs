@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+#
+# pre-commit hook: scan staged files for secrets, passwords, and auth tokens.
+# Prevents commits that contain potential sensitive information.
+# Compatible with macOS and Linux grep (POSIX ERE, no \s or \x escapes).
+#
+
+set -euo pipefail
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Patterns that strongly suggest secrets/credentials.
+# Each line: "regex:::description"
+# Uses POSIX ERE (grep -iE) — no \s, \x27, or Perl extensions.
+SECRET_PATTERNS=(
+  'password[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded password assignment'
+  'passwd[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded passwd assignment'
+  'secret[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded secret assignment'
+  'api[_-]?key[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded API key'
+  'auth[_-]?token[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded auth token'
+  'access[_-]?token[[:space:]]*[:=][[:space:]]*["\x27]':::'Hardcoded access token'
+  'bearer[[:space:]]+[A-Za-z0-9_.+/=-]+':::'Bearer token'
+  'AKIA[0-9A-Z]{16}':::'AWS Access Key ID'
+  'ghp_[A-Za-z0-9]{36,}':::'GitHub Personal Access Token'
+  'gho_[A-Za-z0-9]{36,}':::'GitHub OAuth Token'
+  'ghu_[A-Za-z0-9]{36,}':::'GitHub User-to-Server Token'
+  'ghs_[A-Za-z0-9]{36,}':::'GitHub Server-to-Server Token'
+  'ghr_[A-Za-z0-9]{36,}':::'GitHub Refresh Token'
+  'sk-[A-Za-z0-9]{20,}':::'OpenAI/Stripe Secret Key'
+  'sk-ant-[A-Za-z0-9-]{20,}':::'Anthropic API Key'
+  'xox[bpoas]-[A-Za-z0-9-]{10,}':::'Slack Token'
+  'BEGIN .* PRIVATE KEY':::'Private Key'
+  'jdbc:[a-z]+://.*password=':::'JDBC connection string with password'
+  'mongodb(\+srv)?://[^[:space:]]*:[^@]+@':::'MongoDB connection string with credentials'
+  'postgres(ql)?://[^[:space:]]*:[^@]+@':::'PostgreSQL connection string with credentials'
+  'mysql://[^[:space:]]*:[^@]+@':::'MySQL connection string with credentials'
+  'redis://[^[:space:]]*:[^@]+@':::'Redis connection string with credentials'
+)
+
+# Files that should never be committed
+FORBIDDEN_FILES=(
+  '\.env$'
+  '\.env\.'
+  'id_rsa$'
+  'id_ed25519$'
+  'id_dsa$'
+  '\.pem$'
+  '\.key$'
+  '\.p12$'
+  '\.pfx$'
+  'credentials\.json$'
+  'secrets\.json$'
+  'token\.json$'
+  '\.netrc$'
+)
+
+found_issues=0
+
+# Files that are allowed to contain pattern-like strings (they define
+# the patterns themselves, or handle user-supplied config values).
+ALLOWLISTED_FILES=(
+  '.githooks/pre-commit'
+  '.githooks/pre-push'
+)
+
+# --- Check for forbidden file names ---
+staged_files=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
+
+if [ -z "$staged_files" ]; then
+  exit 0
+fi
+
+for pattern in "${FORBIDDEN_FILES[@]}"; do
+  matches=$(echo "$staged_files" | grep -iE "$pattern" || true)
+  if [ -n "$matches" ]; then
+    echo -e "${RED}BLOCKED:${NC} Potentially sensitive file staged for commit:"
+    echo "$matches" | while read -r f; do
+      echo -e "  ${YELLOW}$f${NC}"
+    done
+    found_issues=1
+  fi
+done
+
+# --- Scan staged content for secret patterns ---
+
+# Build exclude args for allowlisted files
+EXCLUDE_ARGS=()
+for allowed in "${ALLOWLISTED_FILES[@]}"; do
+  EXCLUDE_ARGS+=(":(exclude)$allowed")
+done
+
+for entry in "${SECRET_PATTERNS[@]}"; do
+  pattern="${entry%%:::*}"
+  description="${entry##*:::}"
+
+  # Search staged diff content (only added lines), excluding allowlisted files.
+  # Also filter out lines that are clearly template/variable references (f-strings,
+  # format strings, env var lookups) rather than hardcoded secrets.
+  matches=$(git diff --cached -U0 --diff-filter=ACM -- . "${EXCLUDE_ARGS[@]}" \
+    | grep -E "^\+" \
+    | grep -vE "^\+\+\+" \
+    | grep -vE '\{[a-zA-Z_]' \
+    | grep -vE 'os\.environ|getenv|config\.' \
+    | grep -iE "$pattern" || true)
+
+  if [ -n "$matches" ]; then
+    echo -e "${RED}BLOCKED:${NC} ${description} detected in staged changes:"
+    echo "$matches" | head -5 | while read -r line; do
+      # Truncate long lines to avoid dumping full secrets
+      truncated="${line:0:120}"
+      echo -e "  ${YELLOW}${truncated}${NC}"
+    done
+    count=$(echo "$matches" | wc -l | tr -d ' ')
+    if [ "$count" -gt 5 ]; then
+      echo -e "  ${YELLOW}... and $((count - 5)) more matches${NC}"
+    fi
+    found_issues=1
+  fi
+done
+
+if [ "$found_issues" -ne 0 ]; then
+  echo ""
+  echo -e "${RED}Commit rejected.${NC} Potential secrets detected in staged changes."
+  echo "If these are false positives, you can bypass with: git commit --no-verify"
+  echo "But please double-check — this is a PUBLIC repository."
+  exit 1
+fi
+
+exit 0

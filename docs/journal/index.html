@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal — c64u-bbs</title>
+  <style>
+    :root {
+      --c64-blue: #4040e0;
+      --c64-light-blue: #7070ff;
+      --c64-bg: #4040e0;
+      --c64-border: #7070ff;
+      --c64-text: #a0a0ff;
+      --c64-white: #ffffff;
+      --c64-cyan: #70d0d0;
+      --c64-green: #50b050;
+      --c64-yellow: #d0d050;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: var(--c64-text);
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen {
+      max-width: 800px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--c64-bg);
+      border: 4px solid var(--c64-border);
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(112, 112, 255, 0.3);
+    }
+
+    h1 {
+      color: var(--c64-white);
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .tagline {
+      text-align: center;
+      color: var(--c64-cyan);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .nav a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+
+    .nav a:hover {
+      color: var(--c64-white);
+      text-decoration: underline;
+    }
+
+    .entries {
+      list-style: none;
+    }
+
+    .entries li {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .entries li a {
+      color: var(--c64-cyan);
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+
+    .entries li a:hover {
+      color: var(--c64-white);
+      text-decoration: underline;
+    }
+
+    .entry-date {
+      color: var(--c64-green);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    .entry-summary {
+      color: var(--c64-text);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--c64-text);
+      padding: 2rem;
+      opacity: 0.7;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--c64-text);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    footer a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>*** Journal ***</h1>
+    <p class="tagline">Development log for c64u-bbs</p>
+
+    <div class="nav">
+      <a href="../index.html">&laquo; Back to Home</a>
+    </div>
+
+    <!-- JOURNAL_ENTRIES_START -->
+    <ul class="entries">
+      <li>
+        <a href="2026-04-11-project-kickoff/index.html">Project Kickoff: c64u-bbs</a>
+        <div class="entry-date">April 11, 2026</div>
+        <div class="entry-summary">From empty repo to first contact with C64U-Bean-Thad. Built the full project scaffolding, security guardrails, Python CLI, and REST API client in a single session.</div>
+      </li>
+    </ul>
+    <!-- JOURNAL_ENTRIES_END -->
+  </div>
+
+  <footer>
+    <a href="https://github.com/brainvat/c64u-bbs">github.com/brainvat/c64u-bbs</a>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "product": "C64 Ultimate",
+  "firmware_version": "3.14",
+  "fpga_version": "121",
+  "core_version": "1.47",
+  "hostname": "C64U-Bean-Thad",
+  "unique_id": "25FF7F",
+  "errors": []
+}

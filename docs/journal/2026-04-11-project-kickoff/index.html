@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Kickoff — c64u-bbs Journal</title>
+  <style>
+    :root {
+      --c64-blue: #4040e0;
+      --c64-light-blue: #7070ff;
+      --c64-bg: #4040e0;
+      --c64-border: #7070ff;
+      --c64-text: #a0a0ff;
+      --c64-white: #ffffff;
+      --c64-cyan: #70d0d0;
+      --c64-green: #50b050;
+      --c64-yellow: #d0d050;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: var(--c64-text);
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen {
+      max-width: 800px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--c64-bg);
+      border: 4px solid var(--c64-border);
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(112, 112, 255, 0.3);
+    }
+
+    h1 {
+      color: var(--c64-white);
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .date {
+      color: var(--c64-green);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+      margin-right: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .nav a:hover {
+      color: var(--c64-white);
+      text-decoration: underline;
+    }
+
+    .section {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .section h2 {
+      color: var(--c64-cyan);
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--c64-border);
+      padding-bottom: 0.25rem;
+    }
+
+    .section p {
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+    }
+
+    .section ul {
+      list-style: none;
+      padding-left: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .section ul li {
+      line-height: 1.7;
+    }
+
+    .section ul li::before {
+      content: "► ";
+      color: var(--c64-green);
+    }
+
+    .highlight {
+      color: var(--c64-cyan);
+    }
+
+    .cmd {
+      color: var(--c64-yellow);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      font-size: 0.9em;
+    }
+
+    .terminal {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: var(--c64-green);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--c64-text);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    footer a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>Project Kickoff: c64u-bbs</h1>
+    <div class="date">April 11, 2026</div>
+
+    <div class="nav">
+      <a href="../index.html">&laquo; Journal</a>
+      <a href="../../index.html">&laquo; Home</a>
+    </div>
+
+    <div class="section">
+      <h2>The Vision</h2>
+      <p>
+        Today we kicked off <span class="highlight">c64u-bbs</span> &mdash; a project with one
+        ambitious goal: anyone who owns a Commodore 64 Ultimate should be able to clone this
+        repository, run a setup script, and have a fully working C64-hosted BBS running on
+        their machine in minutes. No SD card shuffling. No manual file transfers. Everything
+        happens over the network.
+      </p>
+      <p>
+        The golden path targets the <span class="highlight">C64 Ultimate</span> (the FPGA-based
+        C64 reimplementation by Gideon's Logic) and communicates with it entirely through its
+        REST API on port 80 and FTP on port 21. Secondary goals include supporting the same
+        BBS on a VICE64 emulator and even on original C64c hardware with physical drives and REU.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>What We Built Today</h2>
+      <p>In a single session, we went from an empty repo to a working Python CLI that talks to a real C64 Ultimate:</p>
+      <ul>
+        <li><span class="highlight">Repository scaffolding</span> &mdash; .gitignore, git hooks for secrets scanning (pre-commit) and docs consistency (pre-push), automated docs/TOC system, journal system</li>
+        <li><span class="highlight">Security guardrails</span> &mdash; 22 regex patterns scanning every commit and push for passwords, API keys, tokens, private keys, and connection strings. This is a public repo &mdash; no mistakes allowed</li>
+        <li><span class="highlight">Python package (c64u-bbs v0.1.0)</span> &mdash; installable via pip with a <span class="cmd">c64u</span> CLI entry point</li>
+        <li><span class="highlight">C64U REST API client</span> &mdash; httpx-based client with X-Password authentication, typed error handling, and a DeviceBackend Protocol for future VICE support</li>
+        <li><span class="highlight">Config system</span> &mdash; cascading config (CLI flags &gt; env vars &gt; ~/.config/c64u-bbs/config.toml)</li>
+        <li><span class="highlight">install.sh</span> &mdash; one-command setup that creates venv, installs deps, sets up hooks, and smoke tests the CLI</li>
+        <li><span class="highlight">Test suite</span> &mdash; 8 tests with mocked HTTP transport, all passing</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>First Contact with C64U-Bean-Thad</h2>
+      <p>The highlight of the day &mdash; our first successful API call to a real C64 Ultimate on the local network:</p>
+      <div class="terminal">$ c64u --host 192.168.1.172 info
+┌───────────┬────────────────┐
+│ Product   │ C64 Ultimate   │
+│ Firmware  │ 3.14           │
+│ FPGA      │ 121            │
+│ Core      │ 1.47           │
+│ Hostname  │ C64U-Bean-Thad │
+│ Host      │ 192.168.1.172  │
+│ Unique ID │ 25FF7F         │
+└───────────┴────────────────┘</div>
+      <p>
+        We discovered along the way that the actual API response field names differ slightly
+        from the official documentation (<span class="cmd">firmware_version</span> vs <span class="cmd">version</span>).
+        A good reminder that testing against real hardware matters &mdash; docs can lag behind firmware.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Road Ahead</h2>
+      <p>Our v1 plan has six phases, each building on the last:</p>
+      <ul>
+        <li><span class="highlight">Phase 1</span> &mdash; Foundation + device info &check; DONE</li>
+        <li><span class="highlight">Phase 2</span> &mdash; Drive management (mount/unmount D64/D71/D81) + PRG runner</li>
+        <li><span class="highlight">Phase 3</span> &mdash; FTP file management (browse, upload, download)</li>
+        <li><span class="highlight">Phase 4</span> &mdash; Device config + network discovery</li>
+        <li><span class="highlight">Phase 5a</span> &mdash; PETSCII auto-answer proof-of-concept (prove the modem pipeline)</li>
+        <li><span class="highlight">Phase 5b</span> &mdash; Full BBS deployment (deploy real BBS software, accept telnet connections)</li>
+      </ul>
+      <p>
+        The end goal: <span class="cmd">c64u bbs deploy</span> and you have a working BBS
+        accepting connections over TCP, routed through the C64U's ACIA modem emulation to
+        classic Commodore 64 BBS software. The 1980s, served over modern networking.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Key Decisions</h2>
+      <ul>
+        <li><span class="highlight">Python + httpx (sync)</span> &mdash; CLI-first, no async complexity. Can migrate later if needed.</li>
+        <li><span class="highlight">DeviceBackend Protocol</span> &mdash; keeps the door open for VICE without over-engineering now</li>
+        <li><span class="highlight">Auto-answer before real BBS</span> &mdash; prove the modem pipeline with a tiny program first, then layer on real BBS software</li>
+        <li><span class="highlight">docs/journal/ excluded from TOC</span> &mdash; journals live inside docs/ for GitHub Pages but are managed separately from project documentation</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://github.com/brainvat/c64u-bbs">github.com/brainvat/c64u-bbs</a>
+  </footer>
+
+</body>
+</html>

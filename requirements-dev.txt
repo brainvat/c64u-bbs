@@ -1,0 +1,5 @@
+# Dev/test dependencies (install with: pip install -r requirements-dev.txt)
+-r requirements.txt
+pytest>=8.0
+pytest-httpx>=0.30
+ruff>=0.4

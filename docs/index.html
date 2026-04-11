@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>c64u-bbs — Commodore 64 Unicode BBS</title>
+  <style>
+    :root {
+      --c64-blue: #4040e0;
+      --c64-light-blue: #7070ff;
+      --c64-bg: #4040e0;
+      --c64-border: #7070ff;
+      --c64-text: #a0a0ff;
+      --c64-white: #ffffff;
+      --c64-cyan: #70d0d0;
+      --c64-green: #50b050;
+      --c64-yellow: #d0d050;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: var(--c64-text);
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen {
+      max-width: 800px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--c64-bg);
+      border: 4px solid var(--c64-border);
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(112, 112, 255, 0.3);
+    }
+
+    h1 {
+      color: var(--c64-white);
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .tagline {
+      text-align: center;
+      color: var(--c64-cyan);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .cursor-blink {
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .section {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .section h2 {
+      color: var(--c64-cyan);
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--c64-border);
+      padding-bottom: 0.25rem;
+    }
+
+    .section p, .section li {
+      line-height: 1.6;
+      color: var(--c64-text);
+    }
+
+    .section ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+
+    .section ul li::before {
+      content: "► ";
+      color: var(--c64-green);
+    }
+
+    a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: var(--c64-white);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      border-top: 1px solid var(--c64-border);
+    }
+
+    .status .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin: 0.25rem;
+    }
+
+    .badge-wip {
+      background: var(--c64-yellow);
+      color: #1a1a2e;
+    }
+
+    .prompt {
+      color: var(--c64-green);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--c64-text);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>*** c64u-bbs ***</h1>
+    <p class="tagline">Commodore 64 Unicode BBS <span class="cursor-blink">█</span></p>
+
+    <div class="section">
+      <h2>About</h2>
+      <p>
+        c64u-bbs lets you deploy and manage a Commodore 64 BBS on the
+        C64 Ultimate — entirely over the network. Clone the repo, run
+        the installer, and talk to your C64U from the command line.
+        No SD cards, no manual file transfers.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Features</h2>
+      <ul>
+        <li><code>c64u</code> CLI tool for managing your C64 Ultimate remotely</li>
+        <li>REST API client with X-Password authentication</li>
+        <li>One-command install with <code>bash install.sh</code></li>
+        <li>Git hooks scanning every commit for leaked secrets</li>
+        <li>Drive management, PRG runner, FTP file access (coming soon)</li>
+        <li>Automated BBS deployment via ACIA modem emulation (coming soon)</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Getting Started</h2>
+      <p>
+        <span class="prompt">READY.</span><br>
+        <code>git clone https://github.com/brainvat/c64u-bbs.git</code><br>
+        <code>cd c64u-bbs && bash install.sh</code><br>
+        <code>source venv/bin/activate</code><br>
+        <code>c64u --host &lt;your-c64u-ip&gt; info</code><br><br>
+        See the <a href="https://github.com/brainvat/c64u-bbs">GitHub repository</a>
+        for full setup instructions.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="TOC.md">Table of Contents</a> — Full documentation index</li>
+        <li><a href="journal/index.html">Development Journal</a> — Progress notes and project log</li>
+      </ul>
+    </div>
+
+    <div class="status">
+      <span class="badge badge-wip">Phase 1 Complete — v0.1.0</span>
+    </div>
+  </div>
+
+  <footer>
+    c64u-bbs &copy; 2026 — <a href="https://github.com/brainvat/c64u-bbs">github.com/brainvat/c64u-bbs</a>
+  </footer>
+
+</body>
+</html>
