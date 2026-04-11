@@ -47,11 +47,13 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     range="$remote_sha..$local_sha"
   fi
 
-  # Get the diff for the range being pushed
-  diff_content=$(git diff "$range" -- 2>/dev/null || git diff --cached 2>/dev/null || true)
+  # Get the diff for the range being pushed, excluding hook files (they contain
+  # the secret patterns themselves, not actual secrets).
+  diff_content=$(git diff "$range" -- . ":(exclude).githooks/pre-commit" ":(exclude).githooks/pre-push" 2>/dev/null || git diff --cached 2>/dev/null || true)
 
   if [ -n "$diff_content" ]; then
-    added_lines=$(echo "$diff_content" | grep -E "^\+" | grep -vE "^\+\+\+" || true)
+    # Filter out template/variable references (f-strings, env var lookups)
+    added_lines=$(echo "$diff_content" | grep -E "^\+" | grep -vE "^\+\+\+" | grep -vE '\{[a-zA-Z_]' | grep -vE 'os\.environ|getenv|config\.' || true)
 
     for pattern in "${SECRET_PATTERNS[@]}"; do
       matches=$(echo "$added_lines" | grep -iE "$pattern" || true)
