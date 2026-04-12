@@ -128,7 +128,7 @@ def generate_basic_autoanswer() -> bytes:
     # The C64U modem sets DCD when a TCP connection is established
     # Status register $DE01, bit 5 = DCD (active low in some implementations)
     # Actually, with the C64U modem, we should poll for incoming data
-    lines.append("30 S=PEEK(56833):IF(S AND 8)=0 THEN 30")
+    lines.append("30 S=PEEK(56833) AND 8:IF S=0 THEN 30")
     lines.append('35 PRINT"CONNECTION DETECTED!"')
 
     # Line 50: Small delay for connection setup
@@ -239,9 +239,9 @@ def _tokenize_basic(lines: list[str]) -> bytes:
             upper_rest = rest[i:].upper()
             for token_name, token_val in sorted(TOKENS.items(), key=lambda x: -len(x[0])):
                 if upper_rest.startswith(token_name):
-                    # Don't tokenize inside variable names
-                    # Check that the character before isn't alphanumeric
-                    if i > 0 and rest[i - 1].isalpha():
+                    # For alphabetic tokens (keywords), don't match inside
+                    # variable names — e.g. don't match TO inside TOTAL
+                    if token_name[0].isalpha() and i > 0 and rest[i - 1].isalpha():
                         continue
                     line_bytes.append(token_val)
                     i += len(token_name)
