@@ -211,6 +211,7 @@ def _tokenize_basic(lines: list[str]) -> bytes:
         line_bytes = bytearray()
         i = 0
         in_string = False
+        in_data = False  # After DATA keyword, everything is literal until : or EOL
 
         while i < len(rest):
             ch = rest[i]
@@ -234,6 +235,16 @@ def _tokenize_basic(lines: list[str]) -> bytes:
                 i += 1
                 continue
 
+            # Inside DATA statements, everything is literal except :
+            if in_data:
+                if ch == ":":
+                    in_data = False
+                    # Fall through to normal tokenization for the :
+                else:
+                    line_bytes.append(ord(ch))
+                    i += 1
+                    continue
+
             # Try to match a token (longest match first)
             matched = False
             upper_rest = rest[i:].upper()
@@ -246,6 +257,9 @@ def _tokenize_basic(lines: list[str]) -> bytes:
                     line_bytes.append(token_val)
                     i += len(token_name)
                     matched = True
+                    # Track entering DATA mode
+                    if token_name == "DATA":
+                        in_data = True
                     break
 
             if not matched:
