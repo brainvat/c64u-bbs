@@ -48,6 +48,7 @@ from c64u_bbs.cli.commands.smoke import smoke  # noqa: E402
 from c64u_bbs.cli.commands.files import files  # noqa: E402
 from c64u_bbs.cli.commands.config import config  # noqa: E402
 from c64u_bbs.cli.commands.discover import discover  # noqa: E402
+from c64u_bbs.cli.commands.bbs import bbs  # noqa: E402
 
 cli.add_command(info)
 cli.add_command(drives)
@@ -57,3 +58,4 @@ cli.add_command(smoke)
 cli.add_command(files)
 cli.add_command(config)
 cli.add_command(discover)
+cli.add_command(bbs)
