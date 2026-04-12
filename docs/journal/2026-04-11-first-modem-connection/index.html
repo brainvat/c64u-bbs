@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First Modem Connection — c64u-bbs Journal</title>
+  <style>
+    :root {
+      --c64-blue: #4040e0;
+      --c64-light-blue: #7070ff;
+      --c64-bg: #4040e0;
+      --c64-border: #7070ff;
+      --c64-text: #a0a0ff;
+      --c64-white: #ffffff;
+      --c64-cyan: #70d0d0;
+      --c64-green: #50b050;
+      --c64-yellow: #d0d050;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: var(--c64-text);
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen {
+      max-width: 800px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--c64-bg);
+      border: 4px solid var(--c64-border);
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(112, 112, 255, 0.3);
+    }
+
+    h1 {
+      color: var(--c64-white);
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .date {
+      color: var(--c64-green);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+      margin-right: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .nav a:hover {
+      color: var(--c64-white);
+      text-decoration: underline;
+    }
+
+    .section {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .section h2 {
+      color: var(--c64-cyan);
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--c64-border);
+      padding-bottom: 0.25rem;
+    }
+
+    .section p, .section li {
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+    }
+
+    .section ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+
+    .section ul li::before {
+      content: "► ";
+      color: var(--c64-green);
+    }
+
+    .highlight { color: var(--c64-cyan); }
+    .cmd {
+      color: var(--c64-yellow);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      font-size: 0.9em;
+    }
+
+    .terminal {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: var(--c64-green);
+    }
+
+    .code {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      color: var(--c64-text);
+      overflow-x: auto;
+    }
+
+    .code .comment { color: var(--c64-green); }
+    .code .keyword { color: var(--c64-cyan); }
+    .code .number { color: var(--c64-yellow); }
+
+    .register-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+    }
+
+    .register-table th {
+      text-align: left;
+      color: var(--c64-cyan);
+      border-bottom: 1px solid var(--c64-border);
+      padding: 0.4rem;
+    }
+
+    .register-table td {
+      padding: 0.4rem;
+      border-bottom: 1px solid rgba(112, 112, 255, 0.2);
+    }
+
+    .register-table td:first-child {
+      color: var(--c64-yellow);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--c64-text);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    footer a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>First Modem Connection</h1>
+    <div class="date">April 11, 2026</div>
+
+    <div class="nav">
+      <a href="../index.html">&laquo; Journal</a>
+      <a href="../../index.html">&laquo; Home</a>
+    </div>
+
+    <div class="section">
+      <h2>The Milestone</h2>
+      <p>
+        Today we achieved the first successful modem connection through the C64 Ultimate.
+        From a Mac running our <span class="cmd">c64u</span> CLI tool, we configured the
+        modem, uploaded a BASIC program, and connected to it over TCP &mdash; proving the
+        entire BBS pipeline works end-to-end.
+      </p>
+      <div class="terminal"> 1: C64U-BBS AUTO-ANSWER
+ 3: WAITING FOR CONNECTION...
+ 4: CONNECTION DETECTED!
+ 5: WELCOME SENT!
+ 6: DISCONNECTED.
+ 7: WAITING FOR NEXT CONNECTION...</div>
+      <p>
+        The screen RAM dump above &mdash; read directly from the C64U via the REST API's
+        DMA read endpoint &mdash; shows the complete auto-answer lifecycle: the program
+        waits for a connection, detects the incoming TCP call, sends a PETSCII welcome
+        screen through the ACIA, waits, disconnects, and loops back for the next caller.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>How It Works: The ACIA Approach</h2>
+      <p>
+        The C64 Ultimate emulates a <span class="highlight">6551 ACIA</span> (Asynchronous
+        Communications Interface Adapter) at the SwiftLink address <span class="cmd">$DE00</span>.
+        This is the same interface that real SwiftLink cartridges used in the 1980s and 90s
+        for modem communication. The C64U maps TCP connections through this emulation &mdash;
+        when someone connects to the listening port, the C64 sees it exactly as it would
+        see an incoming phone call on a Hayes modem.
+      </p>
+
+      <table class="register-table">
+        <tr><th>Address</th><th>Register</th><th>Our Use</th></tr>
+        <tr><td>$DE00 (56832)</td><td>Data Register</td><td>Write bytes to send to TCP client</td></tr>
+        <tr><td>$DE01 (56833)</td><td>Status Register</td><td>Poll bit 3 (TDRE) to detect connection</td></tr>
+        <tr><td>$DE02 (56834)</td><td>Command Register</td><td>$09: DTR active, no IRQ, RTS low</td></tr>
+        <tr><td>$DE03 (56835)</td><td>Control Register</td><td>$1F: 8N1, 19200 baud (SwiftLink)</td></tr>
+      </table>
+
+      <p>
+        The program writes individual bytes to the Data Register ($DE00) to transmit
+        PETSCII characters to the connected terminal. Each byte goes through the ACIA
+        to the C64U's modem emulation layer, which forwards it over the TCP socket to
+        the connected client.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Auto-Answer BASIC Program</h2>
+      <p>
+        Rather than hand-assembling 6502 machine code, we took a pragmatic approach:
+        a <span class="highlight">BASIC program with direct ACIA register access</span>
+        via PEEK and POKE. This is tokenized into a valid C64 PRG file by our Python
+        tokenizer (<span class="cmd">autoanswer.py</span>) and uploaded to the C64U
+        via the REST API.
+      </p>
+      <p>Key lines from the source (<span class="cmd">autoanswer.bas</span>):</p>
+      <div class="code"><span class="comment">; Initialize ACIA: command=$09, control=$1F</span>
+<span class="keyword">20 POKE</span> <span class="number">56834</span>,<span class="number">9</span>:<span class="keyword">POKE</span> <span class="number">56835</span>,<span class="number">31</span>
+
+<span class="comment">; Poll status register bit 3 (TDRE) - wait for connection</span>
+<span class="keyword">30</span> S=<span class="keyword">PEEK</span>(<span class="number">56833</span>) <span class="keyword">AND</span> <span class="number">8</span>:<span class="keyword">IF</span> S=<span class="number">0</span> <span class="keyword">THEN</span> <span class="number">30</span>
+
+<span class="comment">; Send PETSCII data byte-by-byte through ACIA</span>
+<span class="keyword">210 READ</span> B:<span class="keyword">IF</span> B=-<span class="number">1</span> <span class="keyword">THEN</span> <span class="number">300</span>
+<span class="keyword">220 POKE</span> <span class="number">56832</span>,B
+
+<span class="comment">; Hang up: reset ACIA command register</span>
+<span class="keyword">400 POKE</span> <span class="number">56834</span>,<span class="number">0</span></div>
+      <p>
+        The PETSCII welcome screen is stored in DATA statements as raw byte values.
+        PETSCII control codes set colors (159=cyan, 5=white, 30=green, 158=yellow,
+        154=light blue) and 147 clears the screen. The full source with register
+        documentation is saved in
+        <span class="cmd">src/c64u_bbs/bbs/autoanswer.bas</span>.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Building the BASIC Tokenizer</h2>
+      <p>
+        One of the more interesting challenges was writing a BASIC tokenizer in Python
+        that produces valid C64 PRG files. The tokenizer converts BASIC source text into
+        the binary format the C64 expects: a 2-byte load address ($0801), then lines
+        consisting of a next-line pointer, line number, tokenized content, and a null
+        terminator.
+      </p>
+      <p>We hit three tokenizer bugs during testing, all caught by reading the C64U's screen RAM via DMA:</p>
+      <ul>
+        <li><span class="highlight">AND keyword</span> &mdash; <span class="cmd">SAND8</span> wasn't splitting into <span class="cmd">S AND 8</span>. Fix: add spaces in the BASIC source</li>
+        <li><span class="highlight">= operator</span> &mdash; the alpha-predecessor guard was blocking <span class="cmd">=</span> from being tokenized after variable names like <span class="cmd">S</span>. Fix: only apply the guard to alphabetic keyword tokens, not operators</li>
+        <li><span class="highlight">DATA statements</span> &mdash; <span class="cmd">DATA -1</span> was tokenizing the minus sign. Fix: track DATA context and emit literal bytes until colon or end of line</li>
+      </ul>
+      <p>
+        The ability to read screen RAM remotely via
+        <span class="cmd">GET /v1/machine:readmem?address=0400&amp;length=1000</span>
+        was invaluable for debugging &mdash; we could see the exact error messages
+        on the C64 screen without being in the same room as the hardware.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Full Pipeline</h2>
+      <p>
+        The complete data path, proven working today:
+      </p>
+      <div class="terminal">Mac (c64u CLI)
+  &darr; REST API: PUT /v1/configs/Modem%20Settings/Listening%20Port
+C64U Modem Config (port 6400, ACIA at $DE00, SwiftLink)
+  &darr; REST API: POST /v1/runners:run_prg
+C64 runs BASIC program, initializes ACIA
+  &darr; Poll ACIA status register
+TCP client connects to port 6400
+  &darr; C64U modem emulation triggers ACIA
+BASIC program detects connection, sends PETSCII via POKE 56832,B
+  &darr; ACIA &rarr; modem emulation &rarr; TCP socket
+Terminal displays welcome screen</div>
+    </div>
+
+    <div class="section">
+      <h2>Choosing a BBS: What's Next</h2>
+      <p>
+        With the modem pipeline proven, the next step is deploying actual BBS software.
+        This is Phase 5b of our plan, and it involves some important decisions:
+      </p>
+      <ul>
+        <li><span class="highlight">Color 64 BBS</span> &mdash; one of the most popular C64 BBS systems, widely available as D64 images. Good SwiftLink support. Strong candidate for first deployment.</li>
+        <li><span class="highlight">CBBS</span> &mdash; the original Ward Christensen-style BBS. Historically significant, simpler to configure, but more limited.</li>
+        <li><span class="highlight">Image BBS</span> &mdash; feature-rich, actively maintained by the retro community, supports multiple drive types. More complex to set up but the most capable option.</li>
+        <li><span class="highlight">C*Base</span> &mdash; another popular option with good PETSCII graphics support.</li>
+      </ul>
+      <p>
+        Key considerations for our choice:
+      </p>
+      <ul>
+        <li><span class="highlight">SwiftLink compatibility</span> &mdash; the BBS must work with the ACIA at $DE00, not just user-port modems</li>
+        <li><span class="highlight">Redistribution rights</span> &mdash; this is a public repo, so we need software that is freely distributable or downloadable from a known archive</li>
+        <li><span class="highlight">Automation</span> &mdash; we need to be able to configure the BBS non-interactively (or at least script the initial setup) so <span class="cmd">c64u bbs deploy</span> can work end-to-end</li>
+        <li><span class="highlight">Single-drive operation</span> &mdash; many BBS systems expect two drives; we should start with one that works well on a single 1541</li>
+      </ul>
+      <p>
+        The goal remains: <span class="cmd">c64u bbs deploy color64</span> and you have
+        a working BBS accepting telnet connections, all from a single command.
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://github.com/brainvat/c64u-bbs">github.com/brainvat/c64u-bbs</a>
+  </footer>
+
+</body>
+</html>
