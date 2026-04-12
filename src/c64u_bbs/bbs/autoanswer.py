@@ -128,7 +128,7 @@ def generate_basic_autoanswer() -> bytes:
     # The C64U modem sets DCD when a TCP connection is established
     # Status register $DE01, bit 5 = DCD (active low in some implementations)
     # Actually, with the C64U modem, we should poll for incoming data
-    lines.append("30 S=PEEK(56833):IF(SAND8)=0THEN30")
+    lines.append("30 S=PEEK(56833):IF(S AND 8)=0 THEN 30")
     lines.append('35 PRINT"CONNECTION DETECTED!"')
 
     # Line 50: Small delay for connection setup
