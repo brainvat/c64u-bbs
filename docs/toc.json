@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-12T03:35:26.181166+00:00",
+  "generated": "2026-04-12T04:05:24.265823+00:00",
   "repo": "brainvat/c64u-bbs",
   "files": [
     {
@@ -17,6 +17,14 @@
       "type": "html",
       "size": 4951,
       "modified": "2026-04-11T22:59:59.199606+00:00"
+    },
+    {
+      "path": "docs/plans/001-milestone-confirm-C64U-modem-reachable-by-telnet.md",
+      "title": "c64u-bbs v1 Plan",
+      "description": "c64u-bbs should let anyone with a C64 Ultimate clone this repo, run a few commands, and have a working BBS. The golden path is C64U over the network — no SD cards, no physical interaction. From this Mac, we talk to the C64U via its REST API port 80 and FTP port 21, deploy BBS software, configure the ACIA modem, and serve incoming telnet connections as dial-in calls.",
+      "type": "md",
+      "size": 7376,
+      "modified": "2026-04-12T04:01:46.961187+00:00"
     }
   ]
 }
