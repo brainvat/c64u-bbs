@@ -58,8 +58,8 @@ def smoke(ctx: click.Context) -> None:
         enabled = [d for d in drives if d.enabled]
         console.print(f"         [dim]{len(drives)} drives found, {len(enabled)} enabled[/dim]")
 
-    # Test 3: Config read
-    check("GET /v1/configs — read device configuration", client.get_config)
+    # Test 3: Config categories
+    check("GET /v1/configs — read device configuration", client.list_config_categories)
 
     # Summary
     console.print()

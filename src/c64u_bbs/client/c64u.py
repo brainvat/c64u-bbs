@@ -205,14 +205,22 @@ class C64UClient:
 
     # ── Configuration ───────────────────────────────────────
 
-    def get_config(self, pattern: str = "*") -> dict:
-        """Read device configuration. GET /v1/configs"""
+    def list_config_categories(self) -> list[str]:
+        """List config categories. GET /v1/configs"""
         response = self._request("GET", "/configs")
+        return response.json().get("categories", [])
+
+    def get_config(self, category: str | None = None) -> dict:
+        """Read device configuration. GET /v1/configs or GET /v1/configs/{category}"""
+        if category:
+            response = self._request("GET", f"/configs/{category}")
+        else:
+            response = self._request("GET", "/configs")
         return response.json()
 
-    def set_config(self, path: str, value: str) -> None:
-        """Set a device configuration value. PUT /v1/configs/{path}"""
-        self._request("PUT", f"/configs/{path}", params={"value": value})
+    def set_config(self, category: str, item: str, value: str) -> None:
+        """Set a device configuration value. PUT /v1/configs/{category}/{item}"""
+        self._request("PUT", f"/configs/{category}/{item}", params={"value": value})
 
     def save_config(self) -> None:
         """Persist configuration to flash. PUT /v1/configs:save_to_flash"""

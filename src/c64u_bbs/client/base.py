@@ -54,11 +54,15 @@ class DeviceBackend(Protocol):
         """Upload a PRG and auto-run it."""
         ...
 
-    def get_config(self, pattern: str = "*") -> dict:
-        """Read device configuration (with optional wildcard filter)."""
+    def list_config_categories(self) -> list[str]:
+        """List available config categories."""
         ...
 
-    def set_config(self, path: str, value: str) -> None:
+    def get_config(self, category: str | None = None) -> dict:
+        """Read device configuration, optionally filtered by category."""
+        ...
+
+    def set_config(self, category: str, item: str, value: str) -> None:
         """Set a single device configuration value."""
         ...
 
