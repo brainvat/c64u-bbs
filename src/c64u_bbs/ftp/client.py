@@ -118,6 +118,15 @@ class C64UFTP:
 
         return len(data)
 
+    def upload_bytes(self, data: bytes, remote_path: str) -> int:
+        """Upload raw bytes to a remote file. Returns bytes transferred."""
+        try:
+            self.ftp.storbinary(f"STOR {remote_path}", io.BytesIO(data))
+        except error_perm as e:
+            raise C64UFTPError(f"Upload failed for {remote_path}: {e}") from e
+
+        return len(data)
+
     def download(self, remote_path: str, local_path: str) -> int:
         """Download a remote file. Returns bytes transferred."""
         buf = io.BytesIO()

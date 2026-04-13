@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image BBS: The Long Road to One-Click Deploy &mdash; c64u-bbs Journal</title>
+  <style>
+    :root {
+      --c64-blue: #4040e0;
+      --c64-light-blue: #7070ff;
+      --c64-bg: #4040e0;
+      --c64-border: #7070ff;
+      --c64-text: #a0a0ff;
+      --c64-white: #ffffff;
+      --c64-cyan: #70d0d0;
+      --c64-green: #50b050;
+      --c64-yellow: #d0d050;
+      --c64-red: #e05050;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      color: var(--c64-text);
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen {
+      max-width: 800px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--c64-bg);
+      border: 4px solid var(--c64-border);
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(112, 112, 255, 0.3);
+    }
+
+    h1 {
+      color: var(--c64-white);
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .date {
+      color: var(--c64-green);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+      margin-right: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .nav a:hover {
+      color: var(--c64-white);
+      text-decoration: underline;
+    }
+
+    .section {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .section h2 {
+      color: var(--c64-cyan);
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--c64-border);
+      padding-bottom: 0.25rem;
+    }
+
+    .section p, .section li {
+      line-height: 1.7;
+      margin-bottom: 0.75rem;
+    }
+
+    .section ul {
+      list-style: none;
+      padding-left: 1rem;
+    }
+
+    .section ul li::before {
+      content: "► ";
+      color: var(--c64-green);
+    }
+
+    .section ul li.dead::before {
+      content: "✗ ";
+      color: var(--c64-red);
+    }
+
+    .section ul li.win::before {
+      content: "✓ ";
+      color: var(--c64-green);
+    }
+
+    .highlight { color: var(--c64-cyan); }
+    .warning { color: var(--c64-red); }
+    .cmd {
+      color: var(--c64-yellow);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 2px;
+      font-size: 0.9em;
+    }
+
+    .terminal {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--c64-border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      color: var(--c64-green);
+    }
+
+    .callout {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 4px solid var(--c64-yellow);
+      padding: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: var(--c64-text);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    footer a {
+      color: var(--c64-yellow);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>Image BBS: The Long Road to One-Click Deploy</h1>
+    <div class="date">April 12, 2026</div>
+
+    <div class="nav">
+      <a href="../index.html">&laquo; Journal</a>
+      <a href="../../index.html">&laquo; Home</a>
+    </div>
+
+    <div class="section">
+      <h2>The Grand Mission</h2>
+      <p>
+        The goal is deceptively simple: type <span class="cmd">c64u bbs deploy imagebbs</span>
+        and have a working BBS accepting telnet connections on a real Commodore 64. One command.
+        Behind that one command is a pipeline that resets the C64, uploads two 800KB disk images,
+        configures dual 1581 drives, injects a BASIC boot loader, and waits for the BBS to come online.
+      </p>
+      <p>
+        Today we spent many, many hours building that pipeline. Most of it felt like nothing was
+        happening. But every dead end, every wrong turn, every "hold the phone" moment taught us
+        something about how a 40-year-old BBS interacts with modern emulation hardware.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Dead Ends (A Brief History)</h2>
+      <p>This is the third BBS we've tried. The first two were educational failures:</p>
+      <ul>
+        <li class="dead"><span class="highlight">Color 64 BBS v7.37</span> &mdash;
+          Research agents confidently told us it had SwiftLink support. It doesn't.
+          User-port only, 2400 baud max. Lesson: <em>always verify claims against actual software.</em></li>
+        <li class="dead"><span class="highlight">C*Base v3.3.7</span> &mdash;
+          Has SwiftLink support, GPL licensed, everything looked perfect. But its
+          <span class="cmd">configure</span> program has a broken save function &mdash;
+          it silently fails to write config to disk. We proved C64U disk writes work fine
+          with a simple OPEN/PRINT#/CLOSE test. The product itself was borked.</li>
+        <li class="win"><span class="highlight">Image BBS v3.0</span> &mdash;
+          February 2026 release from the 8-Bit Boyz community. Actively maintained,
+          SwiftLink built in, two-disk D81 setup. This is the one.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>What Actually Happened Today</h2>
+      <p>
+        We built the complete deploy pipeline: download script, catalog entry, FTP upload,
+        drive configuration, boot loader generation. Then we hit the C64U for real.
+      </p>
+      <p>
+        The first boot attempt failed with <span class="cmd">?FILE NOT FOUND</span> &mdash;
+        the boot file is <span class="cmd">IMAGE 3.0</span> (uppercase), not
+        <span class="cmd">image 3.0</span> as noted in our plan. We read the actual D81
+        directory with Python to find the correct name. Classic PETSCII casing issue.
+      </p>
+      <p>
+        Then came the setup wizard. Fifteen prompts for sysop info, six pairs of device/drive
+        assignments, clock settings, RS-232 type selection. Every answer matters and none of
+        it is documented well enough to automate yet.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Plus-File Disaster</h2>
+      <p>
+        After the setup wizard, the BBS crashed: <span class="cmd">?LOAD ERROR IN 3096</span>,
+        trying to chain-load <span class="cmd">I/SU.CONFIG</span>. We chased this bug for
+        a long time. Theories included:
+      </p>
+      <ul>
+        <li>The <span class="cmd">/</span> character confusing 1581 subdirectory parsing</li>
+        <li>ACIA initialization interfering with disk I/O</li>
+        <li>Custom ML loader incompatibility with C64U drive emulation</li>
+        <li>Filename case sensitivity</li>
+      </ul>
+      <p>
+        The actual cause? <span class="warning">The Plus-File device must be set to device 8
+        (same as the Program disk), not device 9.</span> This is nowhere in the sysop guide.
+        A quick search of the 8-Bit Boyz forum found the answer in 30 seconds.
+      </p>
+      <div class="callout">
+        Lesson learned: when you've tried two workarounds and you're about to start a third,
+        STOP. Google it. Ask the community. Ask the human for an idea. Don't chase the
+        wascally wabbit around and around the same tree.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>The Triumph</h2>
+      <p>
+        After fixing the Plus-File assignment, Image BBS loaded completely. We configured
+        the modem through the BBS's own IM Configuration Editor &mdash; brand: SWIFTLINK,
+        author: CMD, RS-232 type: SwiftLink ($DE00), all the Hayes AT command settings.
+      </p>
+      <p>
+        And then:
+      </p>
+      <div class="terminal">Connecting to 192.168.50.124:3000...
+CONNECTED
+
+ATA
+
+       IMAGE BBS 64 V3.0 (C) 2025
+
+
+CONNECTION CONFIRMED:  19200
+
+HIT YOUR BACKSPACE/DELETE KEY 1 TIME 1:</div>
+      <p>
+        <span class="highlight">Image BBS answered an incoming call on real C64 hardware.</span>
+        The full pipeline works: Mac &rarr; REST API &rarr; C64U modem emulation &rarr;
+        ACIA at $DE00 &rarr; Image BBS &rarr; PETSCII welcome screen &rarr; TCP socket
+        &rarr; terminal.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>The Unfinished Business</h2>
+      <p>
+        The deploy pipeline works mechanically, but two issues remain:
+      </p>
+      <ul>
+        <li><span class="warning">Deploy-time modem config hang</span> &mdash; calling
+          <span class="cmd">configure_modem()</span> via the C64U API right before boot
+          puts the ACIA in a state that causes Image BBS to hang during
+          <span class="cmd">sub.modem</span> initialization. Skipping the modem config
+          (relying on flash-saved settings) works. Same D81 images run perfectly in VICE.
+          Root cause TBD.</li>
+        <li><span class="warning">Login crash</span> &mdash; remote callers can connect
+          and enter their handle, but login processing crashes at
+          <span class="cmd">sub.misc line 60044</span>. Likely corrupted user records
+          from hung sessions. Needs clean golden D81 images.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>The New Rule</h2>
+      <p>
+        We added a rule to <span class="cmd">CLAUDE.md</span> today:
+      </p>
+      <div class="callout">
+        <strong>Hold the Phone:</strong> When a workaround fails twice, stop.
+        Do not attempt a third. State the problem simply, ask if the conclusion even
+        makes sense, and ask the human for an idea. Never accept absurd conclusions
+        without challenging them. Apply Occam's razor before inventing elaborate theories.
+      </div>
+      <p>
+        This rule exists because we repeatedly burned time chasing symptoms instead of
+        root causes. The Plus-File fix took 30 seconds of Googling after an hour of
+        theorizing. The C*Base config save failure was the product being broken, not
+        our disk writes. The "read-only drive" was never read-only &mdash; we proved
+        it with a simple file write test.
+      </p>
+      <p>
+        The pattern: when something seems impossibly wrong, the simplest explanation
+        is usually right. And the fastest path to that explanation is often asking
+        someone who's seen it before.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Next Session</h2>
+      <ul>
+        <li>Create clean golden D81 images via VICE (transplant modem config from current images)</li>
+        <li>Debug the deploy pipeline modem config timing issue</li>
+        <li>Rewrite README for zero-knowledge onboarding</li>
+        <li>Port forwarding is configured: <span class="cmd">47.232.106.140:6400</span>
+          &rarr; C64U BBS (once login works)</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://github.com/brainvat/c64u-bbs">github.com/brainvat/c64u-bbs</a>
+  </footer>
+
+</body>
+</html>

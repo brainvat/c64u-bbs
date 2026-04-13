@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import select
 import socket
+import sys
 import time
 
 import click
 from rich.console import Console
+from rich.table import Table
 
 from c64u_bbs.bbs.autoanswer import generate_basic_autoanswer
-from c64u_bbs.bbs.deployer import configure_modem, verify_modem_port
+from c64u_bbs.bbs.catalog import CATALOG, get_package, list_packages
+from c64u_bbs.bbs.deployer import DeployError, configure_modem, deploy_bbs, verify_modem_port
 from c64u_bbs.client.c64u import C64UError
 
 
@@ -130,3 +134,142 @@ def stop(ctx: click.Context) -> None:
         click.echo("C64 reset. BBS stopped.")
     except C64UError as e:
         raise click.ClickException(str(e))
+
+
+@bbs.command("list")
+def list_cmd() -> None:
+    """List available BBS packages."""
+    console = Console()
+    packages = list_packages()
+
+    if not packages:
+        console.print("[yellow]No BBS packages available.[/yellow]")
+        return
+
+    table = Table(title="Available BBS Packages")
+    table.add_column("Name", style="cyan")
+    table.add_column("Version")
+    table.add_column("License", style="green")
+    table.add_column("Disks")
+    table.add_column("Description")
+
+    for pkg in packages:
+        disk_summary = ", ".join(
+            f"{d.drive.upper()}:{d.drive_mode.value}" for d in pkg.disks
+        )
+        table.add_row(
+            pkg.name,
+            pkg.version,
+            pkg.license,
+            disk_summary,
+            pkg.description,
+        )
+
+    console.print(table)
+
+
+@bbs.command()
+@click.argument("package", default="imagebbs")
+@click.option("--port", default=6400, help="Modem listening port (default: 6400).")
+@click.option("--save", "save_flash", is_flag=True, help="Save modem config to flash.")
+@click.option("--no-verify", is_flag=True, help="Skip post-deploy connection check.")
+@click.pass_context
+def deploy(
+    ctx: click.Context,
+    package: str,
+    port: int,
+    save_flash: bool,
+    no_verify: bool,
+) -> None:
+    """Deploy a BBS package to the C64U.
+
+    PACKAGE is the name of the BBS to deploy (default: color64).
+    Use 'c64u bbs list' to see available packages.
+    """
+    console = Console()
+
+    # Look up package
+    try:
+        pkg = get_package(package)
+    except KeyError:
+        available = ", ".join(CATALOG.keys())
+        raise click.ClickException(
+            f"Unknown BBS package: {package!r}. Available: {available}"
+        )
+
+    console.print(f"\n[bold]Deploying {pkg.display_name}[/bold]\n")
+
+    def on_step(name: str, detail: str) -> None:
+        console.print(f"  {detail}", end=" ")
+
+    # Deploy
+    try:
+        deploy_bbs(
+            ctx.obj["get_client"](),
+            pkg,
+            port=port,
+            save_to_flash=save_flash,
+            on_step=lambda name, detail: console.print(f"  {detail}"),
+        )
+    except DeployError as e:
+        console.print(f"\n[red]Deploy failed:[/red] {e}")
+        raise SystemExit(1)
+    except C64UError as e:
+        console.print(f"\n[red]Device error:[/red] {e}")
+        raise SystemExit(1)
+
+    # Success
+    host = ctx.obj["config"].host
+    console.print(f"\n[bold green]{pkg.display_name} is running![/bold green]")
+    console.print(f"\nConnect with: [cyan]telnet {host} {port}[/cyan]")
+    console.print(f"Or use:       [cyan]c64u bbs connect[/cyan]\n")
+
+
+@bbs.command()
+@click.option("--port", default=6400, help="Modem listening port (default: 6400).")
+@click.pass_context
+def connect(ctx: click.Context, port: int) -> None:
+    """Connect to the running BBS via raw TCP.
+
+    Opens a raw TCP relay to the BBS modem port. For best results,
+    use a PETSCII-capable terminal (SyncTerm, CGTerm) pointed at
+    the BBS directly. This command is for quick verification.
+
+    Press Ctrl+C to disconnect.
+    """
+    host = ctx.obj["config"].host
+    console = Console()
+
+    console.print(f"Connecting to {host}:{port}...")
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(10.0)
+        sock.connect((host, port))
+        sock.setblocking(False)
+    except socket.error as e:
+        raise click.ClickException(f"Could not connect: {e}")
+
+    console.print("[green]Connected.[/green] Press Ctrl+C to disconnect.\n")
+
+    try:
+        while True:
+            readable, _, _ = select.select([sock, sys.stdin], [], [], 0.1)
+            for s in readable:
+                if s is sock:
+                    try:
+                        data = sock.recv(4096)
+                        if not data:
+                            console.print("\n[yellow]Connection closed by BBS.[/yellow]")
+                            return
+                        sys.stdout.buffer.write(data)
+                        sys.stdout.buffer.flush()
+                    except BlockingIOError:
+                        pass
+                elif s is sys.stdin:
+                    data = sys.stdin.buffer.read1(1024)
+                    if data:
+                        sock.sendall(data)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Disconnected.[/yellow]")
+    finally:
+        sock.close()
