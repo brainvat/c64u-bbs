@@ -19,11 +19,8 @@ cd c64u-bbs
 bash install.sh          # or: bash install.sh --dev (includes test tools)
 source venv/bin/activate
 
-# Configure your C64U
-c64u config init         # prompts for IP address
-
-# Deploy the BBS
-c64u bbs deploy
+# Deploy the BBS (first time — specify your C64U's IP)
+c64u --host <your-c64u-ip> bbs deploy
 
 # Connect
 c64u bbs connect
@@ -49,13 +46,14 @@ This menu-driven script lets you:
 The `c64u bbs deploy` command:
 
 1. Resets the C64 to a clean state
-2. Configures the C64U modem (ACIA/SwiftLink at $DE00)
-3. Uploads disk images to the C64U's SD card via FTP
-4. Mounts D1 (programs) on drive A and D2 (data) on drive B
-5. Boots Image BBS via a BASIC loader
-6. Waits for the BBS to reach its idle screen
+2. Configures the C64U modem (ACIA/SwiftLink at $DE00, port 6400)
+3. Uploads golden disk images to the C64U's SD card via FTP
+4. Blanks the modem welcome banner so callers see the BBS directly
+5. Mounts D1 (programs) on drive A and D2 (data) on drive B as 1581 drives
+6. Boots Image BBS via a BASIC loader
+7. Waits for the BBS to accept connections on the modem port
 
-After deploy, callers connect via TCP to the C64U's modem port.
+After deploy, callers connect via `telnet <c64u-ip> 6400`.
 
 ## CLI Commands
 
@@ -85,17 +83,23 @@ The BBS runs from two 1581 disk images:
 
 Golden (deploy-ready) images are in `assets/bbs/imagebbs/`. Untouched upstream originals are in `assets/bbs/imagebbs/upstream/`. See [`PROVENANCE.md`](assets/bbs/imagebbs/PROVENANCE.md) for exactly what was changed and why.
 
-## Post-Deploy Setup
+## Post-Deploy
 
-On first deploy, the BBS boots to the idle screen with a working sysop account. To complete setup:
+The golden images ship with a working sysop account and SwiftLink modem
+configuration. The BBS boots to its idle screen and accepts callers
+immediately — no manual setup required.
+
+To log in as sysop from the C64U console:
 
 1. Press F1 (full screen), F7 (local logon), I (instant login)
 2. Enter the sysop password
-3. Enter `IM` at the main prompt to open the Configuration Editor
-4. Configure modem settings (J), access groups (E), and message bases (N > A)
-5. Log off with `O` (updates user file)
 
-See the [Image BBS v3.0 Sysop Guide](https://8bitboyz.com/) for full configuration details.
+To customize the BBS (board name, access groups, message bases, etc.),
+enter `IM` at the main prompt to open the Configuration Editor. Log off
+with `O` (not F7) to save changes.
+
+See the [Image BBS v3.0 Sysop Guide](https://8bitboyz.com/) for full
+configuration details.
 
 ## Project Structure
 
