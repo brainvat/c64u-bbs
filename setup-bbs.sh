@@ -370,6 +370,10 @@ install_to_c64u() {
     echo -e "  ${GREEN}[uploaded]${NC} $D2" || \
     { echo -e "  ${RED}[failed]${NC} $D2"; return 1; }
 
+  # Blank the modem welcome text so callers see the BBS directly
+  echo -ne "\r\n" | curl -s -T - "${ftp_url}/flash/welcome.txt" && \
+    echo -e "  ${GREEN}[blanked]${NC} modem welcome text" || true
+
   echo ""
   echo -e "  ${GREEN}Upload complete.${NC} Disk images are at ${sd_dir}/ on the C64U."
 

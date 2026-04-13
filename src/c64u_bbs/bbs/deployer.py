@@ -150,6 +150,10 @@ def deploy_bbs(
             local_path = str(get_assets_dir(package.name) / disk.filename)
             ftp.upload(local_path, remote_path)
 
+        # Blank the modem welcome text so callers see the BBS directly
+        step("modem_text", "Blanking modem welcome text...")
+        ftp.upload_bytes(b"\r\n", "/flash/welcome.txt")
+
     for disk in package.disks:
         # Ensure the drive is enabled (Drive B is often disabled by default)
         drive_config = f"Drive {disk.drive.upper()} Settings"
