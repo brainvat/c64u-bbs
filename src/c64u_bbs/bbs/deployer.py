@@ -99,7 +99,7 @@ def load_disk_image(package_name: str, filename: str) -> bytes:
     if not path.exists():
         raise DeployError(
             f"Disk image not found: {path}\n"
-            f"Run: bash scripts/fetch-imagebbs.sh to download the disk images "
+            f"Run: bash setup-bbs.sh to download or install the disk images "
             f"into assets/bbs/{package_name}/"
         )
     data = path.read_bytes()

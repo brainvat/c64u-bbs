@@ -1,0 +1,19 @@
++---------------------------------------------------+
+|                                                   |
+| Image 3.0 Install - February 1st 2026             |
+|                                                   |
+| This  is the  latest Image 3.0 BBS Master disk 1, |
+| Master disk 2 & 3.0 Utilities disk.               |
+|                                                   |
+| Disk 1  &  disk 2  include Image BBS install, and |
+| also  include all  the previous fixes  up through |
+| December 31st,2025.   Also included  is  the  3.0 |
+| Utilities   disk   which   include  many   useful |
+| tools such  as: fcopy+,  mcopy,  copy-all,  image |
+| modmaker,  image  reader,  renumber.49152,  &  so |
+| much more!                                        |
+|                                                   |
+| For help/support and  downloads visit our forum & |
+| downloads at www.8bitboyz.com                     |
+|                                                   |
++---------------------------------------------------+

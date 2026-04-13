@@ -48,8 +48,9 @@ credentials.json
 token.json
 .netrc
 
-# Downloaded BBS assets (large binary disk images)
-assets/bbs/
+# Downloaded BBS assets — currently tracked in repo for provenance.
+# Uncomment the line below to exclude them (and use setup-bbs.sh to manage).
+# assets/bbs/
 
 # OS generated
 Thumbs.db
