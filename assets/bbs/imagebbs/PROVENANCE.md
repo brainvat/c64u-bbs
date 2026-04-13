@@ -45,7 +45,11 @@ Changes from upstream:
 
 - **`e.modem`** (PRG, 1 block) — replaced. Upstream is 3 blocks (stock
   modem config). Golden version is 1 block, configured for ACIA/SwiftLink
-  at $DE00. Modem config is further customized on the C64U after deploy.
+  at $DE00.
+- **`e.i.modem`** (REL, 9 blocks) — added. Modem initialization and
+  answer configuration for SwiftLink. Transplanted from a prior
+  C64U-configured image. This is the file that tells the BBS how to
+  detect and answer incoming calls via the ACIA.
 - **`u.config`** (REL, 4 blocks) — added. User records file created by the
   setup wizard. Contains sysop account (user #1).
 - **`u.index`** (PRG, 1 block) — added. User index created by the setup
@@ -68,15 +72,18 @@ identical to upstream.
 3. Drive assignments: Program=8/0, all others=9/0, Clock=Manual, SwiftLink=1
 4. Sysop account created and verified (instant login successful)
 5. Clean logoff with user file update
-6. `e.modem` from a prior C64U-configured golden image was transplanted
-   onto the VICE D2 (replacing the stock 3-block version)
-7. Result verified: BBS boots in VICE, sysop login works
+6. `e.modem` (PRG) from a prior C64U-configured golden image was
+   transplanted onto the VICE D2 (replacing the stock 3-block version)
+7. `e.i.modem` (REL) from the same C64U-configured image was transplanted
+   via sector-level copy (sectors were free at the same locations on the
+   new D2, so no relocation was needed)
+8. Result verified: BBS boots in VICE with sysop login, and answers
+   incoming modem connections on C64U
 
 ## Post-Deploy Steps
 
 After deploying golden images to C64U:
 
 1. BBS boots and reaches idle screen automatically
-2. Modem configuration (`e.i.modem`) must be set up via the BBS
-   Configuration Editor (IM > J) on first run — see the Sysop Guide
-   addendum "Setting Up The Modem"
+2. Modem answers incoming TCP connections (SwiftLink pre-configured)
+3. Callers connect via `telnet <c64u-ip> 6400`
