@@ -13,6 +13,7 @@ from pathlib import Path
 from c64u_bbs.bbs.bootloader import generate_boot_loader
 from c64u_bbs.bbs.catalog import BBSPackage
 from c64u_bbs.client.c64u import C64UClient
+from c64u_bbs.ftp.client import C64UFTP
 
 
 # Asset root: assets/bbs/<package>/ relative to project root
@@ -98,8 +99,8 @@ def load_disk_image(package_name: str, filename: str) -> bytes:
     if not path.exists():
         raise DeployError(
             f"Disk image not found: {path}\n"
-            f"Run the BBS setup in VICE first and place the configured "
-            f"D64 files in assets/bbs/{package_name}/"
+            f"Run: bash scripts/fetch-imagebbs.sh to download the disk images "
+            f"into assets/bbs/{package_name}/"
         )
     data = path.read_bytes()
     if len(data) == 0:
@@ -140,14 +141,26 @@ def deploy_bbs(
     step("modem", f"Configuring modem (port {port})...")
     configure_modem(client, port=port, save_to_flash=save_to_flash)
 
-    # 3. Set drive modes and mount disk images
+    # 3. Upload disk images to SD card via FTP, then enable/mount drives
+    sd_bbs_dir = "/SD/bbs"
+    with C64UFTP(client.host) as ftp:
+        for disk in package.disks:
+            remote_path = f"{sd_bbs_dir}/{disk.filename}"
+            step("upload", f"Uploading {disk.filename} to {remote_path}...")
+            local_path = str(get_assets_dir(package.name) / disk.filename)
+            ftp.upload(local_path, remote_path)
+
     for disk in package.disks:
+        # Ensure the drive is enabled (Drive B is often disabled by default)
+        drive_config = f"Drive {disk.drive.upper()} Settings"
+        step("enable_drive", f"Enabling drive {disk.drive.upper()}...")
+        client.set_config(drive_config, "Drive", "Enabled")
+
         step("drive_mode", f"Setting drive {disk.drive.upper()} to {disk.drive_mode.value} mode...")
         client.set_drive_mode(disk.drive, disk.drive_mode)
 
-        step("mount", f"Uploading and mounting {disk.filename} on drive {disk.drive.upper()}...")
-        image_data = load_disk_image(package.name, disk.filename)
-        client.upload_and_mount(disk.drive, image_data, disk.filename)
+        step("mount", f"Mounting {disk.filename} on drive {disk.drive.upper()}...")
+        client.mount_drive(disk.drive, f"{sd_bbs_dir}/{disk.filename}")
 
     time.sleep(1)
 

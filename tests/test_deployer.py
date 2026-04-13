@@ -67,70 +67,92 @@ class TestLoadDiskImage:
 
 
 class TestDeployBBS:
+    @patch("c64u_bbs.bbs.deployer.C64UFTP")
     @patch("c64u_bbs.bbs.deployer.wait_for_modem_ready", return_value=True)
-    @patch("c64u_bbs.bbs.deployer.load_disk_image")
     @patch("c64u_bbs.bbs.deployer.time")
     def test_calls_all_steps_in_order(
-        self, mock_time, mock_load_image, mock_wait, sample_package
+        self, mock_time, mock_wait, mock_ftp_class, sample_package, tmp_path
     ):
-        mock_load_image.return_value = b"\x00" * 1000
+        # Create fake disk images
+        pkg_dir = tmp_path / "testbbs"
+        pkg_dir.mkdir()
+        for disk in sample_package.disks:
+            (pkg_dir / disk.filename).write_bytes(b"\x00" * 1000)
+
         client = MagicMock()
         client.host = "192.168.1.64"
 
         steps = []
-        deploy_bbs(
-            client,
-            sample_package,
-            port=6400,
-            on_step=lambda name, detail: steps.append(name),
-        )
+        with patch("c64u_bbs.bbs.deployer._ASSETS_ROOT", tmp_path):
+            deploy_bbs(
+                client,
+                sample_package,
+                port=6400,
+                on_step=lambda name, detail: steps.append(name),
+            )
 
         # Verify step order
         assert steps == [
             "reset",
             "modem",
-            "drive_mode", "mount",   # disk A
-            "drive_mode", "mount",   # disk B
+            "upload", "upload",                        # FTP upload both disks
+            "enable_drive", "drive_mode", "mount",     # disk A
+            "enable_drive", "drive_mode", "mount",     # disk B
             "boot",
             "wait",
         ]
 
+    @patch("c64u_bbs.bbs.deployer.C64UFTP")
     @patch("c64u_bbs.bbs.deployer.wait_for_modem_ready", return_value=True)
-    @patch("c64u_bbs.bbs.deployer.load_disk_image")
     @patch("c64u_bbs.bbs.deployer.time")
-    def test_resets_c64(self, mock_time, mock_load_image, mock_wait, sample_package):
-        mock_load_image.return_value = b"\x00" * 1000
+    def test_resets_c64(self, mock_time, mock_wait, mock_ftp_class, sample_package, tmp_path):
+        pkg_dir = tmp_path / "testbbs"
+        pkg_dir.mkdir()
+        for disk in sample_package.disks:
+            (pkg_dir / disk.filename).write_bytes(b"\x00" * 1000)
+
         client = MagicMock()
         client.host = "192.168.1.64"
 
-        deploy_bbs(client, sample_package)
+        with patch("c64u_bbs.bbs.deployer._ASSETS_ROOT", tmp_path):
+            deploy_bbs(client, sample_package)
 
         client.reset.assert_called_once()
 
+    @patch("c64u_bbs.bbs.deployer.C64UFTP")
     @patch("c64u_bbs.bbs.deployer.wait_for_modem_ready", return_value=True)
-    @patch("c64u_bbs.bbs.deployer.load_disk_image")
     @patch("c64u_bbs.bbs.deployer.time")
-    def test_mounts_all_disks(self, mock_time, mock_load_image, mock_wait, sample_package):
-        mock_load_image.return_value = b"\x00" * 1000
+    def test_mounts_all_disks(self, mock_time, mock_wait, mock_ftp_class, sample_package, tmp_path):
+        pkg_dir = tmp_path / "testbbs"
+        pkg_dir.mkdir()
+        for disk in sample_package.disks:
+            (pkg_dir / disk.filename).write_bytes(b"\x00" * 1000)
+
         client = MagicMock()
         client.host = "192.168.1.64"
 
-        deploy_bbs(client, sample_package)
+        with patch("c64u_bbs.bbs.deployer._ASSETS_ROOT", tmp_path):
+            deploy_bbs(client, sample_package)
 
         # Should set drive modes for both drives
         assert client.set_drive_mode.call_count == 2
-        # Should upload and mount both disks
-        assert client.upload_and_mount.call_count == 2
+        # Should mount both disks from SD card paths
+        assert client.mount_drive.call_count == 2
 
+    @patch("c64u_bbs.bbs.deployer.C64UFTP")
     @patch("c64u_bbs.bbs.deployer.wait_for_modem_ready", return_value=True)
-    @patch("c64u_bbs.bbs.deployer.load_disk_image")
     @patch("c64u_bbs.bbs.deployer.time")
-    def test_uploads_boot_loader(self, mock_time, mock_load_image, mock_wait, sample_package):
-        mock_load_image.return_value = b"\x00" * 1000
+    def test_uploads_boot_loader(self, mock_time, mock_wait, mock_ftp_class, sample_package, tmp_path):
+        pkg_dir = tmp_path / "testbbs"
+        pkg_dir.mkdir()
+        for disk in sample_package.disks:
+            (pkg_dir / disk.filename).write_bytes(b"\x00" * 1000)
+
         client = MagicMock()
         client.host = "192.168.1.64"
 
-        deploy_bbs(client, sample_package)
+        with patch("c64u_bbs.bbs.deployer._ASSETS_ROOT", tmp_path):
+            deploy_bbs(client, sample_package)
 
         client.upload_and_run_prg.assert_called_once()
         call_args = client.upload_and_run_prg.call_args
@@ -139,15 +161,20 @@ class TestDeployBBS:
         assert isinstance(prg_data, bytes)
         assert filename == "BBSBOOT.PRG"
 
+    @patch("c64u_bbs.bbs.deployer.C64UFTP")
     @patch("c64u_bbs.bbs.deployer.wait_for_modem_ready", return_value=False)
-    @patch("c64u_bbs.bbs.deployer.load_disk_image")
     @patch("c64u_bbs.bbs.deployer.time")
     def test_raises_if_bbs_doesnt_start(
-        self, mock_time, mock_load_image, mock_wait, sample_package
+        self, mock_time, mock_wait, mock_ftp_class, sample_package, tmp_path
     ):
-        mock_load_image.return_value = b"\x00" * 1000
+        pkg_dir = tmp_path / "testbbs"
+        pkg_dir.mkdir()
+        for disk in sample_package.disks:
+            (pkg_dir / disk.filename).write_bytes(b"\x00" * 1000)
+
         client = MagicMock()
         client.host = "192.168.1.64"
 
-        with pytest.raises(DeployError, match="did not open modem port"):
-            deploy_bbs(client, sample_package)
+        with patch("c64u_bbs.bbs.deployer._ASSETS_ROOT", tmp_path):
+            with pytest.raises(DeployError, match="did not open modem port"):
+                deploy_bbs(client, sample_package)

@@ -169,7 +169,7 @@ def list_cmd() -> None:
 
 
 @bbs.command()
-@click.argument("package", default="cbase")
+@click.argument("package", default="imagebbs")
 @click.option("--port", default=6400, help="Modem listening port (default: 6400).")
 @click.option("--save", "save_flash", is_flag=True, help="Save modem config to flash.")
 @click.option("--no-verify", is_flag=True, help="Skip post-deploy connection check.")

@@ -37,22 +37,26 @@ class BBSPackage:
 
 
 CATALOG: dict[str, BBSPackage] = {
-    "cbase": BBSPackage(
-        name="cbase",
-        display_name="C*Base BBS v3.3.7",
-        version="3.3.7",
-        license="GPL-2.0+",
-        boot_file="c/boot 1.59",
+    "imagebbs": BBSPackage(
+        name="imagebbs",
+        display_name="Image BBS v3.0",
+        version="3.0",
+        license="Public Domain",
+        boot_file="IMAGE 3.0",
         boot_device=8,
         disks=(
             DiskImage(
-                "cbase_3_3_7.d81", "a", DriveMode.D1581,
-                "Complete BBS (program + data)",
+                "Master_D1_260125.d81", "a", DriveMode.D1581,
+                "Programs (boot, ML, modules)",
+            ),
+            DiskImage(
+                "Master_D2_260125.d81", "b", DriveMode.D1581,
+                "Data (menus, screens, config)",
             ),
         ),
         description=(
-            "GPL-licensed BBS by David Weinehall (Tao). "
-            "SwiftLink support at $DE00. Single D81 disk."
+            "Actively maintained BBS by the 8-Bit Boyz community. "
+            "SwiftLink support at $DE00. Feb 2026 release."
         ),
     ),
 }

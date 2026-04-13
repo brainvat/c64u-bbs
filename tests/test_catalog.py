@@ -7,21 +7,24 @@ from c64u_bbs.models.drives import DriveMode
 
 
 class TestCatalogEntries:
-    def test_cbase_exists(self):
-        assert "cbase" in CATALOG
+    def test_imagebbs_exists(self):
+        assert "imagebbs" in CATALOG
 
-    def test_cbase_fields(self):
-        pkg = CATALOG["cbase"]
-        assert pkg.name == "cbase"
-        assert pkg.version == "3.3.7"
-        assert pkg.license == "GPL-2.0+"
-        assert pkg.boot_file == "c/boot 1.59"
+    def test_imagebbs_fields(self):
+        pkg = CATALOG["imagebbs"]
+        assert pkg.name == "imagebbs"
+        assert pkg.version == "3.0"
+        assert pkg.license == "Public Domain"
         assert pkg.boot_device == 8
 
-    def test_cbase_has_disks(self):
-        pkg = CATALOG["cbase"]
-        assert len(pkg.disks) >= 1
+    def test_imagebbs_has_two_disks(self):
+        pkg = CATALOG["imagebbs"]
+        assert len(pkg.disks) == 2
         assert all(isinstance(d, DiskImage) for d in pkg.disks)
+        assert pkg.disks[0].drive == "a"
+        assert pkg.disks[1].drive == "b"
+        assert pkg.disks[0].drive_mode == DriveMode.D1581
+        assert pkg.disks[1].drive_mode == DriveMode.D1581
 
     def test_disk_images_have_valid_drives(self):
         for pkg in CATALOG.values():
@@ -36,8 +39,8 @@ class TestCatalogEntries:
 
 class TestGetPackage:
     def test_known_package(self):
-        pkg = get_package("cbase")
-        assert pkg.name == "cbase"
+        pkg = get_package("imagebbs")
+        assert pkg.name == "imagebbs"
 
     def test_unknown_package_raises(self):
         try:
