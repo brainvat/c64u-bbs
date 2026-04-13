@@ -54,6 +54,17 @@ python3 scripts/update_docs_toc.py
 /journal
 ```
 
+## Debugging Rule: Hold the Phone
+
+When a workaround fails twice, **stop**. Do not attempt a third workaround. Instead:
+
+1. State the problem simply to the user
+2. Ask: "Does this even make sense? Can we prove it with a simple test?"
+3. **Ask the human for an idea** — they may solve it in 30 seconds with a Google search
+4. Apply Occam's razor before inventing elaborate theories
+
+Never accept absurd conclusions ("the drive is read-only", "the ACIA is broken") without challenging them first.
+
 ## Project Structure
 
 ```
