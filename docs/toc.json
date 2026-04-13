@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-12T04:05:24.265823+00:00",
+  "generated": "2026-04-13T00:53:54.510211+00:00",
   "repo": "brainvat/c64u-bbs",
   "files": [
     {
@@ -25,6 +25,14 @@
       "type": "md",
       "size": 7376,
       "modified": "2026-04-12T04:01:46.961187+00:00"
+    },
+    {
+      "path": "docs/plans/002-milestone-implement-image-3.0-bbs-plan.md",
+      "title": "Phase 5b: Deploy Image BBS 3.0 to C64U",
+      "description": "Phase 5a proved the modem pipeline works ACIA at $DE00, SwiftLink, TCP on port 6400, auto-answer PRG. Phase 5b deploys real BBS software.",
+      "type": "md",
+      "size": 9404,
+      "modified": "2026-04-12T21:59:10.595689+00:00"
     }
   ]
 }
