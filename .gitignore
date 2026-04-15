@@ -52,6 +52,9 @@ token.json
 # Uncomment the line below to exclude them (and use setup-bbs.sh to manage).
 # assets/bbs/
 
+# BBS backups (created by c64u bbs backup)
+backups/
+
 # OS generated
 Thumbs.db
 ehthumbs.db

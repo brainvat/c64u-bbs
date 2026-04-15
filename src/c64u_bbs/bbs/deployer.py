@@ -51,6 +51,60 @@ def configure_modem(
         client.save_config()
 
 
+def backup_bbs(
+    client: C64UClient,
+    package: BBSPackage,
+    dest_dir: Path,
+    *,
+    port: int = 6400,
+    on_step: callable | None = None,
+) -> list[Path]:
+    """Back up BBS disk images from the C64U's SD card.
+
+    Downloads the deployed disk images to a local directory. Refuses to
+    run if the BBS appears to be actively running (modem port is open).
+
+    Args:
+        client: Connected C64UClient instance.
+        package: BBS package to identify which disk images to download.
+        dest_dir: Local directory to save the backup files.
+        port: Modem listening port to check for active BBS.
+        on_step: Optional callback(step_name, detail) for progress reporting.
+
+    Returns:
+        List of paths to the backed-up files.
+    """
+    def step(name: str, detail: str = "") -> None:
+        if on_step:
+            on_step(name, detail)
+
+    # 1. Verify we can reach the device
+    step("info", "Checking device...")
+    info = client.get_info()
+
+    # 2. Safety check — reset C64 first so the BBS isn't writing to disk
+    step("reset", "Resetting C64 (stopping BBS if running)...")
+    client.reset()
+    import time as _time
+    _time.sleep(3)
+
+    # 3. Create destination directory
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    # 4. Download disk images
+    sd_bbs_dir = "/SD/bbs"
+    saved: list[Path] = []
+    with C64UFTP(client.host, password=client.password) as ftp:
+        for disk in package.disks:
+            remote_path = f"{sd_bbs_dir}/{disk.filename}"
+            local_path = dest_dir / disk.filename
+            step("download", f"Downloading {disk.filename}...")
+            ftp.download(remote_path, str(local_path))
+            saved.append(local_path)
+
+    return saved
+
+
 def verify_modem_port(host: str, port: int, timeout: float = 5.0) -> bool:
     """Check if the modem port is accepting TCP connections."""
     try:

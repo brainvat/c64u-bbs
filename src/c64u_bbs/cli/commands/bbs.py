@@ -13,7 +13,7 @@ from rich.table import Table
 
 from c64u_bbs.bbs.autoanswer import generate_basic_autoanswer
 from c64u_bbs.bbs.catalog import CATALOG, get_package, list_packages
-from c64u_bbs.bbs.deployer import DeployError, configure_modem, deploy_bbs, verify_modem_port
+from c64u_bbs.bbs.deployer import DeployError, backup_bbs, configure_modem, deploy_bbs, verify_modem_port
 from c64u_bbs.client.c64u import C64UError
 
 
@@ -223,6 +223,66 @@ def deploy(
     console.print(f"\n[bold green]{pkg.display_name} is running![/bold green]")
     console.print(f"\nConnect with: [cyan]telnet {host} {port}[/cyan]")
     console.print(f"Or use:       [cyan]c64u bbs connect[/cyan]\n")
+
+
+@bbs.command()
+@click.argument("package", default="imagebbs")
+@click.option("--dir", "dest_dir", default="./backups", help="Backup directory (default: ./backups).")
+@click.option("--port", default=6400, help="Modem listening port (default: 6400).")
+@click.pass_context
+def backup(
+    ctx: click.Context,
+    package: str,
+    dest_dir: str,
+    port: int,
+) -> None:
+    """Back up BBS disk images from the C64U.
+
+    Downloads the deployed disk images from the C64U's SD card. The BBS
+    must be stopped first (c64u bbs stop).
+
+    PACKAGE is the name of the BBS to back up (default: imagebbs).
+    """
+    from datetime import datetime
+    from pathlib import Path
+
+    console = Console()
+
+    try:
+        pkg = get_package(package)
+    except KeyError:
+        available = ", ".join(CATALOG.keys())
+        raise click.ClickException(
+            f"Unknown BBS package: {package!r}. Available: {available}"
+        )
+
+    # Create timestamped subdirectory
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    backup_path = Path(dest_dir) / timestamp
+
+    console.print(f"\n[bold]Backing up {pkg.display_name}[/bold]\n")
+
+    try:
+        saved = backup_bbs(
+            ctx.obj["get_client"](),
+            pkg,
+            backup_path,
+            port=port,
+            on_step=lambda name, detail: console.print(f"  {detail}"),
+        )
+    except DeployError as e:
+        console.print(f"\n[red]Backup failed:[/red] {e}")
+        raise SystemExit(1)
+    except C64UError as e:
+        console.print(f"\n[red]Device error:[/red] {e}")
+        raise SystemExit(1)
+
+    console.print(f"\n[bold green]Backup complete.[/bold green]")
+    console.print(f"\n  {len(saved)} file(s) saved to [cyan]{backup_path}[/cyan]:")
+    for path in saved:
+        size_kb = path.stat().st_size / 1024
+        console.print(f"    {path.name} ({size_kb:.0f} KB)")
+    console.print()
 
 
 @bbs.command()
