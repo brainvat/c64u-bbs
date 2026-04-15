@@ -143,7 +143,7 @@ def deploy_bbs(
 
     # 3. Upload disk images to SD card via FTP, then enable/mount drives
     sd_bbs_dir = "/SD/bbs"
-    with C64UFTP(client.host) as ftp:
+    with C64UFTP(client.host, password=client.password) as ftp:
         for disk in package.disks:
             remote_path = f"{sd_bbs_dir}/{disk.filename}"
             step("upload", f"Uploading {disk.filename} to {remote_path}...")

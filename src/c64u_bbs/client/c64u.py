@@ -52,6 +52,7 @@ class C64UClient:
     ):
         self.host = host
         self.port = port
+        self.password = password or ""
         self.base_url = f"http://{host}:{port}/v1"
 
         headers = {}

@@ -51,10 +51,11 @@ class C64UFTP:
         timeout: Connection timeout in seconds.
     """
 
-    def __init__(self, host: str, port: int = 21, timeout: float = 10.0):
+    def __init__(self, host: str, port: int = 21, timeout: float = 10.0, password: str = ""):
         self.host = host
         self.port = port
         self.timeout = timeout
+        self.password = password
         self._ftp: FTP | None = None
 
     def connect(self) -> None:
@@ -62,7 +63,7 @@ class C64UFTP:
         self._ftp = FTP()
         try:
             self._ftp.connect(self.host, self.port, timeout=self.timeout)
-            self._ftp.login()  # C64U FTP has no auth (or uses device password)
+            self._ftp.login(user="admin", passwd=self.password)
         except Exception as e:
             self._ftp = None
             raise C64UFTPError(f"Cannot connect to FTP at {self.host}:{self.port}: {e}") from e
