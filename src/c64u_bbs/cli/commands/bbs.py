@@ -127,6 +127,11 @@ def status(ctx: click.Context) -> None:
 @click.pass_context
 def stop(ctx: click.Context) -> None:
     """Stop the BBS by resetting the C64."""
+    click.echo("This will reset the C64. If the BBS is running, unsaved data may be lost.")
+    if not click.confirm("Are you sure?", default=True):
+        click.echo("Cancelled.")
+        return
+
     client = ctx.obj["get_client"]()
 
     try:
@@ -261,6 +266,11 @@ def backup(
     backup_path = Path(dest_dir) / timestamp
 
     console.print(f"\n[bold]Backing up {pkg.display_name}[/bold]\n")
+    console.print("  This will reset the C64 to stop the BBS before downloading.")
+    console.print("  If the BBS is running, unsaved data may be lost.\n")
+    if not click.confirm("  Are you sure?", default=True):
+        console.print("\n  Cancelled.\n")
+        return
 
     try:
         saved = backup_bbs(
