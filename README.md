@@ -23,8 +23,10 @@ source venv/bin/activate
 c64u --host <your-c64u-ip> bbs deploy
 
 # Connect
-c64u bbs connect
-# Or: telnet <your-c64u-ip> 6400
+telnet <your-c64u-ip> 6400
+
+# Back up the running BBS disk images
+c64u --host <your-c64u-ip> bbs backup
 ```
 
 ### Disk Image Setup
@@ -59,6 +61,7 @@ After deploy, callers connect via `telnet <c64u-ip> 6400`.
 
 ```bash
 c64u bbs deploy [PACKAGE]   # Deploy a BBS (default: imagebbs)
+c64u bbs backup [--dir DIR] # Back up disk images from C64U (default: ./backups/)
 c64u bbs list               # List available BBS packages
 c64u bbs status             # Check if BBS is accepting connections
 c64u bbs connect            # Raw TCP connection to the BBS
@@ -67,9 +70,14 @@ c64u bbs test               # Run modem auto-answer test
 
 c64u info                   # Show C64U device info
 c64u drives                 # Show drive status
-c64u config init            # Configure C64U connection
 c64u discover               # Find C64U devices on the network
 c64u smoke                  # Run hardware smoke tests
+```
+
+For password-protected C64U devices, pass `--password` before the subcommand:
+
+```bash
+c64u --host 192.168.x.x --password <key> bbs deploy
 ```
 
 ## Disk Images
